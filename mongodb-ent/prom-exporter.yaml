@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prom-exporter
+  namespace: mongodb
+spec:
+  selector:
+    matchLabels:
+      app: prom-exporter
+  replicas: 1 
+  template:
+    metadata:
+      labels:
+        app: prom-exporter
+    spec:
+      containers:
+      # - name: prom-exporter
+      #   image: ssheehy/mongodb-exporter:0.11.0
+      #   imagePullPolicy: Always
+      #   resources:
+      #     # requests:
+      #     #   memory: "512Mi"
+      #     #   cpu: "500m"
+      #     limits:
+      #       memory: "512Mi"
+      #       cpu: "500m"
+      #   env:
+      #   - name: MONGODB_URI
+      #     value: "mongodb://prom-exporter:P%40ssw0rd@db-sharded1-svc:27017/admin?ssl=false"
+      - name: prom-exporter
+        image: percona/mongodb_exporter:0.20
+        imagePullPolicy: Always
+        args: ["--compatible-mode", "--mongodb.uri", "mongodb://prom-exporter:P%40ssw0rd@db-sharded1-svc:27017/admin?ssl=false"]
+        resources:
+          # requests:
+          #   memory: "512Mi"
+          #   cpu: "500m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prom-exporter
+  namespace: mongodb
+  labels:
+    monitoring: "true"
+spec:
+  selector:
+    app: prom-exporter
+  ports:
+    - protocol: TCP
+      name: metrics
+      port: 9216
+      targetPort: 9216

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-mongodb
+spec:
+  selector:
+    matchLabels:
+      app: simple-mongodb
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: simple-mongodb
+    spec:
+      containers:
+      - name: simple-mongodb
+        image: cwza/simple_mongodb:latest
+        imagePullPolicy: Always
+        command: ["/app"]
+        resources:
+          requests:
+            cpu: "0.1"
+            memory: "100M"
+          limits:
+            cpu: "0.1"
+            memory: "100M"
+        env:
+        - name: CONSUMERURL
+          value: {{ .Values.consumerurl }}
+        - name: TIMEOUT
+          value: {{ .Values.timeout | quote }}
+        - name: WORKERCNT
+          value: {{ .Values.workercnt | quote }}
+        - name: RATES
+          value: {{ .Values.rates }}
+        - name: CNTS
+          value: {{ .Values.cnts }}
