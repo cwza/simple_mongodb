@@ -16,6 +16,28 @@ helm install --namespace=try -f values.yaml simple-mongodb .
 helm delete simple-mongodb --namespace=try
 ```
 
+## Default Value of Mongodb Driver
+```
+ConnectTimeout         30 * time.Second
+Compressors            nil (compression will not be used)
+Dialer                 net.Dialer with a 300 second keepalive time
+HeartbeatInterval      10 * time.Second
+LocalThreshold         15 * time.Millisecond
+MaxConnIdleTime        nil (no limit)
+MaxPoolSize            100
+Monitor                nil
+ReadConcern            nil (server default `local`)
+ReadPreference         readpref.Primary()
+Registry               bson.DefaultRegistry
+RetryWrites            true
+ServerSelectionTimeout 30 * time.Second
+Direct                 false
+SocketTimeout          nil (infinite)
+TLSConfig              nil
+WriteConcern           nil (server default `w:1`)
+ZlibLevel              6 (if zlib compression enabled)
+```
+
 ---
 
 ## Install Mongodb Enterprised in K8S

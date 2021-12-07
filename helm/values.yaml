@@ -1,8 +1,8 @@
-consumerurl: "mongodb://admin:P%40ssw0rd@shard-svc:27017/admin?ssl=false"
-timeout: 5
-workercount: 10
-rates: "200"
-cnts: "1"
+consumerurl: "mongodb://admin:P%40ssw0rd@shard-svc.mongodb:27017/admin?ssl=false"
+timeout: 30
+workercnt: 2
+rates: "200,200"
+cnts: "1,1"
 # rates: "3000,6000,9000,12000,15000,12000,9000,6000,3000,0"
 # cnts: "1,1,1,1,1,1,1,1,1,1"
 # rates: "750,1500,2250,3000,3750,4500,5250,6000,6750,7500,8250,9000,9750,10500,11250,12000,12750,13500,14250,15000,14250,13500,12750,12000,11250,10500,9750,9000,8250,7500,6750,6000,5250,4500,3750,3000,2250,1500,750,0"

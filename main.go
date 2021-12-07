@@ -8,6 +8,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 var configPath string
@@ -17,9 +18,12 @@ func init() {
 }
 
 func initClient(uri string) (*mongo.Client, func(), error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	client, err := mongo.Connect(ctx,
+		options.Client().ApplyURI(uri),
+		options.Client().SetReadPreference(readpref.SecondaryPreferred()),
+	)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -85,6 +89,9 @@ func main() {
 	// send read reqs
 	sendFunc := func() error {
 		_, err := userRepo.GetUsers(config.Timeout)
+		if err != nil {
+			log.Printf("failed to get users, %s", err)
+		}
 		return err
 	}
 	genSecRateFunc := createGenSecRateFunc(createGenMinRateFunc(config.Rates, config.Cnts))
