@@ -1,38 +1,17 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"log"
 	"time"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"github.com/cwza/simple_mongodb/mongodb"
 )
 
 var configPath string
 
 func init() {
 	flag.StringVar(&configPath, "cfgpath", "./config.toml", "config file path")
-}
-
-func initClient(uri string) (*mongo.Client, func(), error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	client, err := mongo.Connect(ctx,
-		options.Client().ApplyURI(uri),
-		options.Client().SetReadPreference(readpref.SecondaryPreferred()),
-	)
-	if err != nil {
-		return nil, nil, err
-	}
-	closeFunc := func() {
-		if err = client.Disconnect(ctx); err != nil {
-			log.Fatalf("failed to disconnect, %s", err)
-		}
-	}
-	return client, closeFunc, nil
 }
 
 type SendFuncType func() error
@@ -72,19 +51,43 @@ func main() {
 	}
 	log.Printf("config: %+v\n", config)
 
-	// client
-	client, closeFunc, err := initClient(config.ConsumerUrl)
+	// create mongodb client
+	client, closeFunc, err := mongodb.InitClient(config.ConsumerUrl)
 	if err != nil {
 		log.Fatalf("failed to init client, %s", err)
 	}
 	defer closeFunc()
 
-	// create data
-	userRepo := NewUserRepo(client)
+	// drop users
+	userRepo := mongodb.NewUserRepo(client)
+	err = userRepo.DropUsers()
+	if err != nil {
+		log.Fatalf("failed to drop users, %s", err)
+	}
+
+	// shard testdb.user
+	adminRepo := mongodb.NewAdminRepo(client)
+	err = adminRepo.EnableSharding("testdb")
+	if err != nil {
+		log.Fatalf("failed to enable sharding on testdb, %s", err)
+	}
+	err = adminRepo.ShardCollection("testdb", "user")
+	if err != nil {
+		log.Fatalf("failed to shard on testdb.user, %s", err)
+	}
+
+	// create users
 	err = userRepo.CreateUsers(100)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("failed to create create users, %s", err)
 	}
+
+	// get users
+	users, err := userRepo.GetUsers(30)
+	if err != nil {
+		log.Fatalf("failed to get users, %s", err)
+	}
+	log.Printf("users: %v", users)
 
 	// send read reqs
 	sendFunc := func() error {

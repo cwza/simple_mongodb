@@ -1,4 +1,4 @@
-package main
+package mongodb
 
 import (
 	"context"
@@ -10,8 +10,9 @@ import (
 )
 
 type User struct {
-	Name string
-	Age  int
+	// Id   uuid.UUID `bson:"_id"`
+	Name string `bson:"name"`
+	Age  int    `bson:"age"`
 }
 
 type UserRepo struct {
@@ -22,21 +23,23 @@ func NewUserRepo(client *mongo.Client) *UserRepo {
 	return &UserRepo{client.Database("testdb").Collection("user")}
 }
 
-func (o *UserRepo) CreateUsers(cnt int) error {
+func (o *UserRepo) DropUsers() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	err := o.collection.Drop(ctx)
-	if err != nil {
-		return err
-	}
+	return o.collection.Drop(ctx)
+}
+
+func (o *UserRepo) CreateUsers(cnt int) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 
 	docs := make([]interface{}, cnt)
 	for i := 0; i < cnt; i++ {
 		user := User{Name: fmt.Sprintf("user%d", i), Age: 28}
 		docs[i] = user
 	}
-	_, err = o.collection.InsertMany(ctx, docs)
+	_, err := o.collection.InsertMany(ctx, docs)
 	return err
 }
 
