@@ -1,0 +1,58 @@
+apiVersion: mongodb.com/v1
+kind: MongoDB
+metadata:
+  name: replicaset
+  namespace: mongodb
+spec:
+  members: 3
+  version: 4.4.0-ent
+  type: ReplicaSet
+  opsManager:
+    configMapRef:
+      name: project-replicaset
+  credentials: ops-manager-apikey
+  persistent: false
+  exposedExternally: true
+  security:
+    authentication:
+      enabled: true
+      modes: ["SCRAM"] # Valid authentication modes are "SCRAM' and "X509"
+      ignoreUnknownUsers: true # default value false
+  podSpec:
+    podTemplate:
+      metadata:
+          labels:
+            monitoring: "true"
+      spec:
+        containers:
+          - name: mongodb-enterprise-database
+            resources:
+              limits:
+                cpu: "0.5"
+                memory: 500M
+          - name: prom-exporter
+            image: percona/mongodb_exporter:0.20
+            imagePullPolicy: Always
+            args: ["--compatible-mode", "--mongodb.uri", "mongodb://prom-exporter:P%40ssw0rd@127.0.0.1:27017/admin?ssl=false"]
+            ports:
+              - name: metrics
+                containerPort: 9216
+                protocol: TCP
+            resources:
+              limits:
+                cpu: "0.1"
+                memory: 100M
+          # - name: prom-exporter
+          #   image: ssheehy/mongodb-exporter:0.11.0
+          #   imagePullPolicy: Always
+          #   resources:
+          #     limits:
+          #       cpu: "0.1"
+          #       memory: "100M"
+          #   ports:
+          #     - name: metrics
+          #       containerPort: 9216
+          #       protocol: TCP
+          #   env:
+          #   - name: MONGODB_URI
+          #     value: "mongodb://prom-exporter:P%40ssw0rd@127.0.0.1:27017/admin?ssl=false"

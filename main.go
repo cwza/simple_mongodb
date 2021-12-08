@@ -65,8 +65,8 @@ func main() {
 		log.Fatalf("failed to drop users, %s", err)
 	}
 
-	// shard testdb.user
 	if config.Mode == Shard {
+		// shard testdb.user
 		adminRepo := mongodb.NewAdminRepo(client)
 		err = adminRepo.EnableSharding("testdb")
 		if err != nil {

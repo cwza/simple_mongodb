@@ -12,7 +12,7 @@ When you push to master branch the github action will automatically build image 
 ``` sh
 kubectl create namespace try
 cd helm
-helm install --namespace=try -f values.yaml simple-mongodb . # for shard
+b helm install --namespace=try -f values.yaml simple-mongod. # for shard
 # helm install --namespace=try -f values.yaml --set mode=replicaset --set consumerurl="mongodb://admin:P%40ssw0rd@replicaset-svc.mongodb:27017/admin?ssl=false" simple-mongodb . # for replicaset
 # helm delete simple-mongodb --namespace=try
 ```
