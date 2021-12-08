@@ -25,6 +25,8 @@ spec:
             cpu: "0.5"
             memory: "100M"
         env:
+        - name: MODE
+          value: {{ .Values.mode }}
         - name: CONSUMERURL
           value: {{ .Values.consumerurl }}
         - name: TIMEOUT

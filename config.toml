@@ -1,3 +1,4 @@
+mode = "shard"
 consumerurl = "mongodb://admin:P%40ssw0rd@10.1.10.55:32243/admin?ssl=false"
 timeout = 5
 workercnt = 10

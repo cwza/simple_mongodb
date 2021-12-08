@@ -1,4 +1,7 @@
+mode: "shard"
+# mode: "replicaset"
 consumerurl: "mongodb://admin:P%40ssw0rd@shard-svc.mongodb:27017/admin?ssl=false"
+# consumerurl: "mongodb://admin:P%40ssw0rd@replicaset-svc.mongodb:27017/admin?ssl=false"
 timeout: 30
 workercnt: 2
 rates: "200,200"

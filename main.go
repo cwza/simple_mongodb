@@ -66,14 +66,16 @@ func main() {
 	}
 
 	// shard testdb.user
-	adminRepo := mongodb.NewAdminRepo(client)
-	err = adminRepo.EnableSharding("testdb")
-	if err != nil {
-		log.Fatalf("failed to enable sharding on testdb, %s", err)
-	}
-	err = adminRepo.ShardCollection("testdb", "user")
-	if err != nil {
-		log.Fatalf("failed to shard on testdb.user, %s", err)
+	if config.Mode == Shard {
+		adminRepo := mongodb.NewAdminRepo(client)
+		err = adminRepo.EnableSharding("testdb")
+		if err != nil {
+			log.Fatalf("failed to enable sharding on testdb, %s", err)
+		}
+		err = adminRepo.ShardCollection("testdb", "user")
+		if err != nil {
+			log.Fatalf("failed to shard on testdb.user, %s", err)
+		}
 	}
 
 	// create users

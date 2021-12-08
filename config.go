@@ -7,7 +7,24 @@ import (
 	"github.com/spf13/viper"
 )
 
+type Mode string
+
+const (
+	Shard      Mode = "shard"
+	Replicaset Mode = "replicaset"
+)
+
+func (o Mode) IsValid() bool {
+	for _, a := range []Mode{Shard, Replicaset} {
+		if o == a {
+			return true
+		}
+	}
+	return false
+}
+
 type Config struct {
+	Mode        Mode   `mapstructure:"mode"`
 	ConsumerUrl string `mapstructure:"consumerurl"`
 	Timeout     int    `mapstructure:"timeout"`
 	WorkerCnt   int    `mapstructure:"workercnt"`
@@ -30,6 +47,9 @@ func initConfig(filepath string) (Config, error) {
 		return Config{}, fmt.Errorf("unmarshal config failed: %s", err)
 	}
 
+	if !config.Mode.IsValid() {
+		return Config{}, fmt.Errorf("config.Mode is invalid")
+	}
 	if config.ConsumerUrl == "" {
 		return Config{}, fmt.Errorf("config.ConsumerUrl is invalid")
 	}
